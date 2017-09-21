@@ -4,7 +4,7 @@ from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.translation import string_concat, gettext_lazy as _
 
-from .widgets import DateRangeWidget
+from .widgets import DateRangeWidget, DateTimeRangeWidget
 
 
 def to_python(self, value):
@@ -14,19 +14,19 @@ def to_python(self, value):
         value = unicode_value.strip()
     else:
         raise ValidationError(
-            _("Date range value given was not able to be converted to unicode.")
+            _("Date range value: " + str(value) + " was not able to be converted to unicode.")
         )
 
     if self.widget.separator in value:
         str_dates = value.split(self.widget.separator, 2)
 
         try:
-            beginning = self.to_python(str_dates[0])
+            beginning = super(type(self), self).to_python(str_dates[0])
         except ValidationError as e:
             raise ValidationError(string_concat('Error in period beginning: ', e.message), e.code)
 
         try:
-            end = self.to_python(str_dates[1])
+            end = super(type(self), self).to_python(str_dates[1])
         except ValidationError as e:
             raise ValidationError(string_concat('Error in period end: ', e.message), e.code)
 
@@ -46,7 +46,7 @@ class DateRangeField(forms.DateField):
 
 
 class DateTimeRangeField(forms.DateTimeField):
-    widget = DateRangeWidget
+    widget = DateTimeRangeWidget
 
     def to_python(self, value):
         return to_python(self, value)

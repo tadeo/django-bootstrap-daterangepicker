@@ -18,6 +18,11 @@ format_to_js = {
     '%y': 'YY',
     '%B': 'MMMM',
     '%b': 'MMM',
+    '%M': 'mm',
+    '%H': 'hh',
+    '%I': 'h',
+    '%p': 'A',
+    '%S': 'ss',
 }
 
 format_to_js_re = re.compile(r'(?<!\w)(' + '|'.join(format_to_js.keys()) + r')\b')
@@ -28,7 +33,6 @@ def add_month(target_date, months):
     if month == 0:
         month = 12
         year_diff -= 1
-
 
     days_next = calendar.monthrange(target_date.year + year_diff, month)[1]
     day = target_date.day
@@ -129,3 +133,14 @@ class DateRangeWidget(forms.TextInput):
             'all': ('daterangepicker/daterangepicker.css',)
         }
         js = ('momentjs/moment.js', 'daterangepicker/daterangepicker.js')
+
+
+class DateTimeRangeWidget(DateRangeWidget):
+    format_key = 'DATETIME_INPUT_FORMATS'
+
+    def __init__(self, *args, **kwargs):
+        super(DateTimeRangeWidget, self).__init__(*args, **kwargs)
+
+        # If picker options are not set already, add make picker a timePicker
+        if not self.picker_options:
+            self.picker_options = {'timePicker': True}
