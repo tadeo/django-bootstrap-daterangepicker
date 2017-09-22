@@ -1,6 +1,6 @@
 import json
 import re
-import calendar
+from dateutil import relativedelta
 
 from collections import OrderedDict
 
@@ -29,33 +29,23 @@ format_to_js = {
 format_to_js_re = re.compile(r'(?<!\w)(' + '|'.join(format_to_js.keys()) + r')\b')
 
 
-def add_month(target_date, months):
-    year_diff, month = divmod(target_date.month + months, 12)
-    if month == 0:
-        month = 12
-        year_diff -= 1
-
-    days_next = calendar.monthrange(target_date.year + year_diff, month)[1]
-    day = target_date.day
-    if day > days_next:
-        day = days_next
-
-    return date(target_date.year + year_diff, month, day)
+def add_month(start_date, months):
+    return start_date + relativedelta.relativedelta(months=months)
 
 
-def common_dates():
-    today = date.today()
+def common_dates(start_date=date.today()):
     one_day = timedelta(days=1)
     return OrderedDict([
-        ('Today', lambda today: (today, today)),
-        ('Yesterday', lambda today: (today - one_day, today - one_day)),
-        ('This week', lambda today: (today - timedelta(days=today.weekday()), today)),
-        ('Last week', lambda today: (today - timedelta(days=today.weekday() + 7), today - timedelta(days=today.weekday() + 1))),
-        ('Week ago', lambda today: (today - timedelta(days=7), today)),
-        ('This month', lambda today: (today.replace(day=1), today)),
-        ('Last month', lambda today: (add_month(today.replace(day=1), -1), today.replace(day=1) - one_day)),
-        ('3 months', lambda today: (add_month(today, -3), today)),
-        ('Year', lambda today: (add_month(today, -12), today)),
+        ('Today',  (start_date, start_date)),
+        ('Yesterday', (start_date - one_day, start_date - one_day)),
+        ('This week', (start_date - timedelta(days=start_date.weekday()), start_date)),
+        ('Last week', (start_date - timedelta(days=start_date.weekday() + 7),
+                       start_date - timedelta(days=start_date.weekday() + 1))),
+        ('Week ago', (start_date - timedelta(days=7), start_date)),
+        ('This month', (start_date.replace(day=1), start_date)),
+        ('Last month', (add_month(start_date.replace(day=1), -1), start_date.replace(day=1) - one_day)),
+        ('3 months', (add_month(start_date, -3), start_date)),
+        ('Year', (add_month(start_date, -12), start_date)),
     ])
 
 

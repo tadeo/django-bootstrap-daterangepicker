@@ -40,6 +40,9 @@ setup(
 
     keywords='django daterange picker',
     packages=['django_bootstrap3_daterangepicker'],
-    install_requires=['django'],
+    install_requires=[
+        'django',
+        'python-dateutil'
+    ],
     include_package_data=True,
 )
