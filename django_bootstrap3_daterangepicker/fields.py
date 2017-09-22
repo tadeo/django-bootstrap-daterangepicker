@@ -17,6 +17,10 @@ def to_python(self, value):
             _("Date range value: " + str(value) + " was not able to be converted to unicode.")
         )
 
+    if self.widget.clearable:
+        if value.strip() == '':
+            return None, None
+
     if self.widget.separator in value:
         str_dates = value.split(self.widget.separator, 2)
 
@@ -41,12 +45,20 @@ def to_python(self, value):
 class DateRangeField(forms.DateField):
     widget = DateRangeWidget
 
+    def __init__(self, clearable=False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.widget.clearable = clearable
+
     def to_python(self, value):
         return to_python(self, value)
 
 
 class DateTimeRangeField(forms.DateTimeField):
     widget = DateTimeRangeWidget
+
+    def __init__(self, clearable=False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.widget.clearable = clearable
 
     def to_python(self, value):
         return to_python(self, value)

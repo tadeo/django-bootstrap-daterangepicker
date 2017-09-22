@@ -8,6 +8,7 @@ from datetime import date, datetime, timedelta
 from django import forms
 from django.utils import formats
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 
 __all__ = ['DateRangeWidget', 'add_month', 'common_dates']
 
@@ -61,11 +62,12 @@ def common_dates():
 class DateRangeWidget(forms.TextInput):
     format_key = 'DATE_INPUT_FORMATS'
 
-    def __init__(self, picker_options=None, attrs=None, format=None, separator=' - '):
+    def __init__(self, picker_options=None, attrs=None, format=None, separator=' - ', clearable=False):
         super(DateRangeWidget, self).__init__(attrs)
         self.separator = separator
         self.format = format
         self.picker_options = picker_options or {}
+        self.clearable = clearable
 
     def __format(self):
         return self.format or formats.get_format(self.format_key)[0]
@@ -89,6 +91,22 @@ class DateRangeWidget(forms.TextInput):
         </script>
         """
 
+    clearable_script_template = """
+        <script type="text/javascript">
+        $(function() {{
+        
+            $('#{id}').on('apply.daterangepicker', function(ev, picker) {{
+                $(this).val(picker.startDate.format('{js_format}') + '{separator}' + picker.endDate.format('{js_format}'));
+            }});
+            
+            $('#{id}').on('cancel.daterangepicker', function(ev, picker) {{
+                $(this).val('');
+            }});
+            
+        }});
+        </script>
+        """
+
     date_options = {'startDate', 'endDate', 'minDate', 'maxDate'}
 
     def render(self, name, value, attrs=None):
@@ -100,6 +118,10 @@ class DateRangeWidget(forms.TextInput):
                 'format': js_format
             }
         }
+
+        if self.clearable:
+            options['autoUpdateInput'] = False
+            options['locale']['cancelLabel'] = _("Clear")
 
         def convert_dates(v):
             if callable(v):
@@ -124,9 +146,17 @@ class DateRangeWidget(forms.TextInput):
         attrs = self.build_attrs(self.attrs, attrs)
         script = self.script_template.format(id=attrs['id'], options=options_js)
 
+        clearable_script = ""
+        if self.clearable:
+            clearable_script = self.clearable_script_template.format(
+                id=attrs['id'],
+                separator=self.separator,
+                js_format=options['locale']['format'],
+            )
+
         if 'class' not in attrs:
             attrs['class'] = 'form-control'
-        return mark_safe(super(DateRangeWidget, self).render(name, value, attrs) + script)
+        return mark_safe(super(DateRangeWidget, self).render(name, value, attrs) + script + clearable_script)
 
     class Media:
         css = {
