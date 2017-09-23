@@ -1,45 +1,40 @@
-# Always prefer setuptools over distutils
+import sys
 from setuptools import setup
-# To use a consistent encoding
-from codecs import open
-from os import path
 
-here = path.abspath(path.dirname(__file__))
-
-# Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
+long_description = ''
+if 'upload' in sys.argv or 'register' in sys.argv:
+    import pypandoc
+    long_description = pypandoc.convert('README.md', 'rst')
 
 setup(
-    name='django_bootstrap3_daterangepicker',
-    version='1.0.1',
+    name='django-bootstrap-daterangepicker',
+    version='1.0.0',
 
-    description='Django date range form field',
+    description='A Django form field and widget wrapper for bootstrap-daterangepicker',
     long_description=long_description,
 
-    url='https://github.com/YuriMalinov/django-bootstrap3-daterangepicker/',
+    url='https://github.com/jckw/django-bootstrap-daterangepicker/',
 
-    author='Yuri Malinov',
-    author_email='yurik.m@gmail.com',
+    author='Yuri Malinov, Jack Weatherilt',
+    author_email='yurik.m@gmail.com, jackweatherilt@outlook.com',
 
     license='MIT',
 
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
-        'Topic :: Software Development :: Libraries :: Python Modules',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
+        'Operating System :: OS Independent',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Utilities',
+        'Environment :: Web Environment',
+        'Framework :: Django',
     ],
 
-    keywords='django daterange picker',
-    packages=['django_bootstrap3_daterangepicker'],
+    keywords='django daterange datetime date bootstrap picker',
+    packages=['bootstrap_daterangepicker'],
     install_requires=[
         'django',
         'python-dateutil'

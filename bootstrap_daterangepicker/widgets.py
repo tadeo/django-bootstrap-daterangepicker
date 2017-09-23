@@ -51,7 +51,7 @@ def common_dates(start_date=date.today()):
 
 class DateRangeWidget(forms.TextInput):
     format_key = 'DATE_INPUT_FORMATS'
-    template_name = 'django_bootstrap3_daterangepicker/daterangepicker.html'
+    template_name = 'bootstrap_daterangepicker/daterangepicker.html'
 
     def __init__(self, picker_options=None, attrs=None, format=None, separator=' - ', clearable=False):
         super(DateRangeWidget, self).__init__(attrs)

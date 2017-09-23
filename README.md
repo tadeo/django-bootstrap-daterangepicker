@@ -1,45 +1,60 @@
-# django-bootstrap3-daterangepicker
+# django-bootstrap-daterangepicker
 
-This is django field wrapper for http://www.daterangepicker.com/ . Useful for reporting services.
+This is Django form field wrapper for [bootstrap-daterangepicker](http://www.daterangepicker.com/), for use with Bootstrap 3 and 4.
 
-Field data format is tuple (start_date, end_date).
+This module allows for: single date pickers, date range selectors and datetime range selectors.
 
-Installation:
----
+Ranges are returned as tuples of format `(start, end)`, where `start` and `end` are datetime.date or datetime.datetime objects depending on the field type.
 
-1. ```pip install django_bootstrap3_daterangepicker```
-2. add `'django_bootstrap3_daterangepicker'` to `INSTALLED_APPS`
+The DateField is a replacement for Django's built-in `forms.DateField`, with the only difference being that it accepts an optional `clearable` parameter, and the default widget is the DatePickerWidget specified in this module. 
 
+# Installation
+1. `pip install django-bootstrap-daterangepicker`
+2. Add `'bootstrap_daterangepicker'` to your `INSTALLED_APPS`
+3. Add the resource links required for [bootstrap-daterangepicker](http://www.daterangepicker.com/) into the `<head>`  of the relevant HTML files
 
-Usage:
-----
-* jQuery, Bootstrap are required on target page
-
+## Example usage
 ```python
-class PeriodFilter(forms.Form):
-    range = DateRangeField(widget=DateRangeWidget(picker_options={
-        'ranges': common_dates()
-    }))
+from django import forms
+from bootstrap_daterangepicker import widgets, fields
 
-# ...    
-form = PeriodFilter(initial={'range': (date.today(), date.today())})
-# ...
-(from_date, to_date) = form.cleaned_data['range']
+
+class DemoForm(forms.Form):
+    # Date Picker Fields
+    date_single_normal = fields.DateField()
+    date_single_with_format = fields.DateField(
+        input_formats=['%d/%m/%Y'],
+        widget=widgets.DatePickerWidget(
+            format='%d/%m/%Y'
+        )
+    )
+    date_single_clearable = fields.DateField(clearable=True)
+
+    # Date Range Fields
+    date_range_normal = fields.DateRangeField()
+    date_range_with_format = fields.DateRangeField(
+        input_formats=['%d/%m/%Y'],
+        widget=widgets.DateRangeWidget(
+            format='%d/%m/%Y'
+        )
+    )
+    date_range_clearable = fields.DateRangeField(clearable=True)
+
+    # DateTime Range Fields
+    datetime_range_normal = fields.DateTimeRangeField()
+    datetime_range_with_format = fields.DateTimeRangeField(
+        input_formats=['%d/%m/%Y (%H:%M:%S)'],
+        widget=widgets.DateTimeRangeWidget(
+            format='%d/%m/%Y (%H:%M:%S)'
+        )
+    )
+    datetime_range_clearable = fields.DateTimeRangeField(clearable=True)
 ```
 
-Template - don't forget media:
-```html
-{% block extracss %}
-    {{ filter.media['css'] }}
-{% endblock %}
-{% block endscripts %}
-    {{ super() }}
-    {{ filter.media['js'] }}
-{% endblock %}
+### Requirements
+* [Bootstrap](http://getbootstrap.com/) >= 3
+* [jQuery](http://www.jquery.com/) >= 1
+* [Moment.js](http://momentjs.com/) >= 2.10.6
+* [bootstrap-daterangepicker](http://www.daterangepicker.com/) >= 2
+* [Django](https://www.djangoproject.com/) >= 1.8
 
-{% block content %}
-{{ filter.range }}
-{% endblock %}
-```
-
-Special thanks to https://github.com/nkunihiko/django-bootstrap3-datetimepicker/ for guidance in creating custom fields.
