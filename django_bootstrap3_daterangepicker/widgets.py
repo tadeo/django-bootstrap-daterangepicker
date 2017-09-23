@@ -8,7 +8,7 @@ from datetime import date, datetime, timedelta
 from django import forms
 from django.utils import formats
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 __all__ = ['DateRangeWidget', 'add_month', 'common_dates']
 
@@ -51,108 +51,70 @@ def common_dates(start_date=date.today()):
 
 class DateRangeWidget(forms.TextInput):
     format_key = 'DATE_INPUT_FORMATS'
+    template_name = 'django_bootstrap3_daterangepicker/daterangepicker.html'
 
     def __init__(self, picker_options=None, attrs=None, format=None, separator=' - ', clearable=False):
         super(DateRangeWidget, self).__init__(attrs)
+        
         self.separator = separator
         self.format = format
         self.picker_options = picker_options or {}
         self.clearable = clearable
+        
+        if 'class' not in self.attrs:
+            self.attrs['class'] = 'form-control'
 
-    def __format(self):
+    def _get_format(self):
         return self.format or formats.get_format(self.format_key)[0]
 
-    def __format_date(self, value):
-        return formats.localize_input(value, self.__format())
+    def _format_date_value(self, value):
+        return formats.localize_input(value, self._get_format())
 
     def _format_value(self, value):
         if isinstance(value, tuple):
-            return self.__format_date(value[0]) + \
+            return self._format_date_value(value[0]) + \
                    self.separator + \
-                   self.__format_date(value[1])
+                   self._format_date_value(value[1])
         else:
             return value
 
-    script_template = """
-        <script type="text/javascript">
-        $(function() {{
-            $('#{id}').daterangepicker({options});
-        }});
-        </script>
-        """
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        date_format = format_to_js_re.sub(lambda m: format_to_js[m.group()], self._get_format())
 
-    clearable_script_template = """
-        <script type="text/javascript">
-        $(function() {{
-        
-            $('#{id}').on('apply.daterangepicker', function(ev, picker) {{
-                $(this).val(picker.startDate.format('{js_format}') + '{separator}' + picker.endDate.format('{js_format}'));
-            }});
-            
-            $('#{id}').on('cancel.daterangepicker', function(ev, picker) {{
-                $(this).val('');
-            }});
-            
-        }});
-        </script>
-        """
-
-    date_options = {'startDate', 'endDate', 'minDate', 'maxDate'}
-
-    def render(self, name, value, attrs=None):
-        date_format = self.__format()
-        js_format = format_to_js_re.sub(lambda m: format_to_js[m.group()], date_format)
-
-        options = {
+        default_picker_options = {
             'locale': {
-                'format': js_format
+                'format': date_format,
             }
         }
 
         if self.clearable:
-            options['autoUpdateInput'] = False
-            options['locale']['cancelLabel'] = _("Clear")
+            default_picker_options['autoUpdateInput'] = False
+            default_picker_options['locale']['cancelLabel'] = _("Clear")
 
-        def convert_dates(v):
-            if callable(v):
-                v = v()
+        # Rename for clarity
+        picker_options = default_picker_options
+        picker_options.update(self.picker_options)
 
-            if isinstance(v, date) or isinstance(v, datetime):
-                return v.strftime(date_format)
-            else:
-                return str(v)
-
-        picker_options = self.picker_options if not callable(self.picker_options) else self.picker_options()
-        options.update(picker_options)
-        if 'ranges' in options:
-            ranges = OrderedDict(options['ranges'])
+        # If range is a dict of functions, call with 'today' as argument
+        if 'ranges' in picker_options:
+            ranges = OrderedDict(picker_options['ranges'])
             for k, v in ranges.items():
                 if callable(v):
                     ranges[k] = v(datetime.today())
-            options['ranges'] = ranges
+            picker_options['ranges'] = ranges
 
-        options_js = json.dumps(options, default=convert_dates, indent="    ")
-
-        attrs = self.build_attrs(self.attrs, attrs)
-        script = self.script_template.format(id=attrs['id'], options=options_js)
-
-        clearable_script = ""
-        if self.clearable:
-            clearable_script = self.clearable_script_template.format(
-                id=attrs['id'],
-                separator=self.separator,
-                js_format=options['locale']['format'],
-            )
-
-        if 'class' not in attrs:
-            attrs['class'] = 'form-control'
-        return mark_safe(super(DateRangeWidget, self).render(name, value, attrs) + script + clearable_script)
-
-    class Media:
-        css = {
-            'all': ('daterangepicker/daterangepicker.css',)
+        # Update context for template
+        context['widget']['picker'] = {
+            'options': {
+                'json': mark_safe(json.dumps(picker_options)),
+                'python': picker_options,
+            },
+            'clearable': self.clearable,
+            'separator': self.separator,
         }
-        js = ('momentjs/moment.js', 'daterangepicker/daterangepicker.js')
+
+        return context
 
 
 class DateTimeRangeWidget(DateRangeWidget):
@@ -161,6 +123,13 @@ class DateTimeRangeWidget(DateRangeWidget):
     def __init__(self, *args, **kwargs):
         super(DateTimeRangeWidget, self).__init__(*args, **kwargs)
 
-        # If picker options are not set already, add make picker a timePicker
-        if not self.picker_options:
-            self.picker_options = {'timePicker': True}
+        if 'timePicker' not in self.picker_options:
+            self.picker_options['timePicker'] = True
+
+
+class DatePickerWidget(DateRangeWidget):
+    def __init__(self, *args, **kwargs):
+        super(DatePickerWidget, self).__init__(*args, **kwargs)
+
+        if 'singleDatePicker' not in self.picker_options:
+            self.picker_options['singleDatePicker'] = True

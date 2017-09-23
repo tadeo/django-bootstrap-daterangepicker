@@ -4,7 +4,7 @@ from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.translation import string_concat, gettext_lazy as _
 
-from .widgets import DateRangeWidget, DateTimeRangeWidget
+from .widgets import DateRangeWidget, DateTimeRangeWidget, DatePickerWidget
 
 
 def to_python(self, value):
@@ -62,3 +62,11 @@ class DateTimeRangeField(forms.DateTimeField):
 
     def to_python(self, value):
         return to_python(self, value)
+
+
+class DateField(forms.DateField):
+    widget = DatePickerWidget
+
+    def __init__(self, clearable=False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.widget.clearable = clearable
