@@ -7,7 +7,7 @@ from django.utils.translation import string_concat, gettext_lazy as _
 from .widgets import DateRangeWidget, DateTimeRangeWidget, DatePickerWidget
 
 
-class AbstractRangeField(object):
+class DateRangeMixin(object):
     def to_python(self, value):
         # Try to coerce the value to unicode.
         unicode_value = force_text(value, strings_only=True)
@@ -43,7 +43,7 @@ class AbstractRangeField(object):
             )
 
 
-class DateRangeField(AbstractRangeField, forms.DateField):
+class DateRangeField(DateRangeMixin, forms.DateField):
     widget = DateRangeWidget
 
     def __init__(self, clearable=False, *args, **kwargs):
@@ -51,7 +51,7 @@ class DateRangeField(AbstractRangeField, forms.DateField):
         self.widget.clearable = clearable
 
 
-class DateTimeRangeField(AbstractRangeField, forms.DateTimeField):
+class DateTimeRangeField(DateRangeMixin, forms.DateTimeField):
     widget = DateTimeRangeWidget
 
     def __init__(self, clearable=False, *args, **kwargs):
