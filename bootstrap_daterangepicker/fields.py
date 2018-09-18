@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils import six
 from django.utils.encoding import force_text
-from django.utils.translation import string_concat, gettext_lazy as _
+from django.utils.text import format_lazy, gettext_lazy as _
 
 from .widgets import DateRangeWidget, DateTimeRangeWidget, DatePickerWidget
 
@@ -28,12 +28,12 @@ class DateRangeMixin(object):
             try:
                 beginning = super().to_python(str_dates[0])
             except ValidationError as e:
-                raise ValidationError(string_concat('Error in period beginning: ', e.message), e.code)
+                raise ValidationError(format_lazy('Error in period beginning: {}', e.message), e.code)
 
             try:
                 end = super().to_python(str_dates[1])
             except ValidationError as e:
-                raise ValidationError(string_concat('Error in period end: ', e.message), e.code)
+                raise ValidationError(format_lazy('Error in period end: {}', e.message), e.code)
 
             return beginning, end
         else:

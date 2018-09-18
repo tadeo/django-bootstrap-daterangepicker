@@ -10,7 +10,7 @@ from django.utils import formats
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
-__all__ = ['DateRangeWidget', 'add_month', 'common_dates']
+__all__ = ['DatePickerWidget', 'DateRangeWidget', 'DateTimeRangeWidget', 'add_month', 'common_dates']
 
 format_to_js = {
     '%m': 'MM',
@@ -55,12 +55,12 @@ class DateRangeWidget(forms.TextInput):
 
     def __init__(self, picker_options=None, attrs=None, format=None, separator=' - ', clearable=False):
         super(DateRangeWidget, self).__init__(attrs)
-        
+
         self.separator = separator
         self.format = format
         self.picker_options = picker_options or {}
         self.clearable = clearable
-        
+
         if 'class' not in self.attrs:
             self.attrs['class'] = 'form-control'
 
