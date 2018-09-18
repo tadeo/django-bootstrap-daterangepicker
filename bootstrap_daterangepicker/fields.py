@@ -9,14 +9,20 @@ from .widgets import DateRangeWidget, DateTimeRangeWidget, DatePickerWidget
 
 class DateRangeMixin(object):
     def to_python(self, value):
+        # if we already have a tuple/list of dates just return them
+        try:
+            beginning, end = value
+            if isinstance(beginning, super) and isinstance(end, super):
+                return beginning, end
+        except ValueError:
+            pass
+
         # Try to coerce the value to unicode.
         unicode_value = force_text(value, strings_only=True)
         if isinstance(unicode_value, six.text_type):
             value = unicode_value.strip()
         else:
-            raise ValidationError(
-                _("Date range value: " + str(value) + " was not able to be converted to unicode.")
-            )
+            raise ValidationError(_("Date range value: " + str(value) + " was not able to be converted to unicode."))
 
         if self.widget.clearable:
             if value.strip() == '':
@@ -37,10 +43,7 @@ class DateRangeMixin(object):
 
             return beginning, end
         else:
-            raise ValidationError(
-                _("Invalid date range format."),
-                code='invalid'
-            )
+            raise ValidationError(_("Invalid date range format."), code='invalid')
 
 
 class DateRangeField(DateRangeMixin, forms.DateField):
