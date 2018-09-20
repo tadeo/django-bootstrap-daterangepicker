@@ -2,8 +2,11 @@ from datetime import datetime
 
 from django.forms import forms
 from django.test import SimpleTestCase
+from django.utils.timezone import get_current_timezone
 
 from bootstrap_daterangepicker.fields import DateTimeRangeField
+
+tz = get_current_timezone()
 
 
 class DateTimeRangeTests(SimpleTestCase):
@@ -15,8 +18,8 @@ class DateTimeRangeTests(SimpleTestCase):
         self.assertTrue(form.is_bound)
         self.assertTrue(form.is_valid(), msg=form.errors)
         start, end = form.cleaned_data['dates']
-        self.assertEqual(start, datetime(2018, 1, 1))
-        self.assertEqual(end, datetime(2018, 1, 31))
+        self.assertEqual(start, datetime(2018, 1, 1, tzinfo=tz))
+        self.assertEqual(end, datetime(2018, 1, 31, tzinfo=tz))
 
     def test_required_not_set_raises_error(self):
         class TestForm(forms.Form):
@@ -64,16 +67,15 @@ class DateTimeRangeTests(SimpleTestCase):
         form = TestForm({'dates': '2018-01-01 - 2018-01-31'})
         self.assertTrue(form.is_valid(), msg=form.errors)
         start, end = form.cleaned_data['dates']
-        self.assertEqual(start, datetime(2018, 1, 1))
-        self.assertEqual(end, datetime(2018, 1, 31))
+        self.assertEqual(start, datetime(2018, 1, 1, tzinfo=tz))
+        self.assertEqual(end, datetime(2018, 1, 31, tzinfo=tz))
 
     def test_with_date_instances(self):
         class TestForm(forms.Form):
             dates = DateTimeRangeField(required=True)
 
-        start, end = (datetime(2018, 8, 1), datetime(2018, 8, 3))
-        form = TestForm({'dates': (start, end)})
+        form = TestForm({'dates': (datetime(2018, 8, 1, tzinfo=tz), datetime(2018, 8, 3, tzinfo=tz))})
         self.assertTrue(form.is_valid(), msg=form.errors)
         start, end = form.cleaned_data['dates']
-        self.assertEqual(start, datetime(2018, 8, 1))
-        self.assertEqual(end, datetime(2018, 8, 3))
+        self.assertEqual(start, datetime(2018, 8, 1, tzinfo=tz))
+        self.assertEqual(end, datetime(2018, 8, 3, tzinfo=tz))
