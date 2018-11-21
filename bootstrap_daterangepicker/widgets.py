@@ -1,10 +1,9 @@
 import json
 import re
-from dateutil import relativedelta
-
 from collections import OrderedDict
-
 from datetime import date, datetime, timedelta
+
+from dateutil import relativedelta
 from django import forms
 from django.utils import formats
 from django.utils.safestring import mark_safe
@@ -24,7 +23,7 @@ format_to_js = {
     '%I': 'hh',
     '%p': 'A',
     '%S': 'ss',
-}
+    }
 
 format_to_js_re = re.compile(r'(?<!\w)(' + '|'.join(format_to_js.keys()) + r')\b')
 
@@ -36,7 +35,7 @@ def add_month(start_date, months):
 def common_dates(start_date=date.today()):
     one_day = timedelta(days=1)
     return OrderedDict([
-        ('Today',  (start_date, start_date)),
+        ('Today', (start_date, start_date)),
         ('Yesterday', (start_date - one_day, start_date - one_day)),
         ('This week', (start_date - timedelta(days=start_date.weekday()), start_date)),
         ('Last week', (start_date - timedelta(days=start_date.weekday() + 7),
@@ -46,7 +45,7 @@ def common_dates(start_date=date.today()):
         ('Last month', (add_month(start_date.replace(day=1), -1), start_date.replace(day=1) - one_day)),
         ('3 months', (add_month(start_date, -3), start_date)),
         ('Year', (add_month(start_date, -12), start_date)),
-    ])
+        ])
 
 
 class DateRangeWidget(forms.TextInput):
@@ -59,10 +58,16 @@ class DateRangeWidget(forms.TextInput):
         self.separator = separator
         self.format = format
         self.picker_options = picker_options or {}
-        self.clearable = clearable
+        self.clearable_override = clearable
 
         if 'class' not in self.attrs:
             self.attrs['class'] = 'form-control'
+
+    def clearable(self):
+        """clearable if the field is an optional field or if explicitly set as clearable"""
+        # Can't be set on init as is_required is set *after* widget initialisation
+        # https://github.com/django/django/blob/d5f4ce9849b062cc788988f2600359dc3c2890cb/django/forms/fields.py#L100
+        return not self.is_required or self.clearable_override
 
     def _get_format(self):
         return self.format or formats.get_format(self.format_key)[0]
@@ -85,10 +90,10 @@ class DateRangeWidget(forms.TextInput):
         default_picker_options = {
             'locale': {
                 'format': date_format,
+                }
             }
-        }
 
-        if self.clearable:
+        if self.clearable():
             default_picker_options['autoUpdateInput'] = False
             default_picker_options['locale']['cancelLabel'] = _("Clear")
 
@@ -109,10 +114,10 @@ class DateRangeWidget(forms.TextInput):
             'options': {
                 'json': mark_safe(json.dumps(picker_options)),
                 'python': picker_options,
-            },
-            'clearable': self.clearable,
+                },
+            'clearable': self.clearable(),
             'separator': self.separator,
-        }
+            }
 
         return context
 

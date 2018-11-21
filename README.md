@@ -28,7 +28,7 @@ class DemoForm(forms.Form):
             format='%d/%m/%Y'
         )
     )
-    date_single_clearable = fields.DateField(clearable=True)
+    date_single_clearable = fields.DateField(required=False)
 
     # Date Range Fields
     date_range_normal = fields.DateRangeField()
@@ -38,7 +38,7 @@ class DemoForm(forms.Form):
             format='%d/%m/%Y'
         )
     )
-    date_range_clearable = fields.DateRangeField(clearable=True)
+    date_range_clearable = fields.DateRangeField(required=False)
 
     # DateTime Range Fields
     datetime_range_normal = fields.DateTimeRangeField()
@@ -48,7 +48,7 @@ class DemoForm(forms.Form):
             format='%d/%m/%Y (%I:%M:%S)'
         )
     )
-    datetime_range_clearable = fields.DateTimeRangeField(clearable=True)
+    datetime_range_clearable = fields.DateTimeRangeField(required=False)
 ```
 
 ### Requirements
