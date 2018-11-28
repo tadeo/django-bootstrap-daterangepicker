@@ -50,9 +50,7 @@ class DateTimeRangeTests(SimpleTestCase):
 
     def test_not_required_empty(self):
         class TestForm(forms.Form):
-            # FIXME: shouldn't need the clearable param for this test to pass but we currently do
-            # TODO: (also shouldn't need the clearable param at all as can just use the 'required' param)
-            dates = DateTimeRangeField(required=False, clearable=True)
+            dates = DateTimeRangeField(required=False)
 
         form = TestForm({'dates': ''})  # when the form is empty it is actually passed as an empty string
         self.assertTrue(form.is_valid(), msg=form.errors)

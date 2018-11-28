@@ -36,7 +36,7 @@ class DateRangeMixin(object):
         else:
             raise ValidationError(_("Date range value: " + str(value) + " was not able to be converted to unicode."))
 
-        if self.widget.clearable:
+        if self.widget.clearable():
             if value.strip() == '':
                 return None, None
 
@@ -63,7 +63,7 @@ class DateRangeField(DateRangeMixin, forms.DateField):
 
     def __init__(self, clearable=False, *args, **kwargs):
         super().__init__(type_=date, *args, **kwargs)
-        self.widget.clearable = clearable
+        self.widget.clearable_override = clearable
 
 
 class DateTimeRangeField(DateRangeMixin, forms.DateTimeField):
@@ -71,7 +71,7 @@ class DateTimeRangeField(DateRangeMixin, forms.DateTimeField):
 
     def __init__(self, clearable=False, *args, **kwargs):
         super().__init__(type_=datetime, *args, **kwargs)
-        self.widget.clearable = clearable
+        self.widget.clearable_override = clearable
 
 
 class DateField(forms.DateField):
@@ -79,4 +79,4 @@ class DateField(forms.DateField):
 
     def __init__(self, clearable=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.widget.clearable = clearable
+        self.widget.clearable_override = clearable
