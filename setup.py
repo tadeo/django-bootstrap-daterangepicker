@@ -1,14 +1,12 @@
 import sys
+import pypandoc
 from setuptools import setup
 
-long_description = ''
-if 'upload' in sys.argv or 'register' in sys.argv:
-    import pypandoc
-    long_description = pypandoc.convert('README.md', 'rst')
+long_description = pypandoc.convert('README.md', 'rst')
 
 setup(
     name='django-bootstrap-daterangepicker',
-    version='1.0.3',
+    version='1.0.4',
 
     description='A Django form field and widget wrapper for bootstrap-daterangepicker',
     long_description=long_description,
