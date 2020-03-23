@@ -7,7 +7,7 @@ with open('README.md', 'r') as f:
 
 setup(
     name='django-bootstrap-daterangepicker',
-    version='1.0.4',
+    version='1.0.5',
 
     description='A Django form field and widget wrapper for bootstrap-daterangepicker',
     long_description=long_description,
