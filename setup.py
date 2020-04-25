@@ -36,7 +36,8 @@ setup(
     packages=['bootstrap_daterangepicker'],
     install_requires=[
         'django',
-        'python-dateutil'
+        'python-dateutil',
+        'six'
     ],
     include_package_data=True,
 )

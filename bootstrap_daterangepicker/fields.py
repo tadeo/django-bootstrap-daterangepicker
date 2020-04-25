@@ -2,10 +2,10 @@ from datetime import date, datetime
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
+import six
 
 from .widgets import DateRangeWidget, DateTimeRangeWidget, DatePickerWidget
 
