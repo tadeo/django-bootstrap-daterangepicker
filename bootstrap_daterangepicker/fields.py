@@ -31,7 +31,7 @@ class DateRangeMixin(object):
             pass
 
         # Try to coerce the value to unicode.
-        unicode_value = force_text(value, strings_only=True)
+        unicode_value = force_str(value, strings_only=True)
         if isinstance(unicode_value, six.text_type):
             value = unicode_value.strip()
         else:
